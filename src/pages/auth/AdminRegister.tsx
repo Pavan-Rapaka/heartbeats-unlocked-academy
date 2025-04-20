@@ -6,17 +6,37 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Lock } from "lucide-react";
+import { handleRegistration } from "@/utils/auth";
+import { useToast } from "@/components/ui/use-toast";
 
 const AdminRegister = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement admin registration logic
-    navigate("/admin/login");
+    setIsLoading(true);
+    
+    try {
+      await handleRegistration(email, password, 'admin', { name });
+      toast({
+        title: "Registration successful!",
+        description: "Please check your email to verify your account.",
+      });
+      navigate("/admin/login");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "An error occurred during registration",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,8 +96,8 @@ const AdminRegister = () => {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
-              Register
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
             </Button>
             <p className="text-sm text-center text-gray-600">
               Already have an account?{" "}
