@@ -75,3 +75,6 @@ const StudentLogin = () => {
       </Card>
     </div>
   );
+};
+
+export default StudentLogin;

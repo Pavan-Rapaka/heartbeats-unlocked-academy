@@ -105,3 +105,6 @@ const StudentRegister = () => {
       </Card>
     </div>
   );
+};
+
+export default StudentRegister;

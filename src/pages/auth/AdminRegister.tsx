@@ -90,3 +90,6 @@ const AdminRegister = () => {
       </Card>
     </div>
   );
+};
+
+export default AdminRegister;
