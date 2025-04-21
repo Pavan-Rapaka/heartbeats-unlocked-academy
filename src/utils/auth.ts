@@ -44,21 +44,32 @@ export const handleRegistration = async (
 
     if (authError) throw authError;
 
-    // Additional profile data can be stored in a profiles table if needed
+    // Try to store profile data in a profiles table if it exists
+    // If the table doesn't exist yet, we'll just log the error but not fail the registration
     if (authData.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: authData.user.id,
-            email,
-            name: additionalData.name,
-            role,
-            ...(role === 'student' && { institution: additionalData.institution }),
-          },
-        ]);
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              email,
+              name: additionalData.name,
+              role,
+              ...(role === 'student' && { institution: additionalData.institution }),
+            },
+          ]);
 
-      if (profileError) throw profileError;
+        // Just log the error but don't throw it - the user is still created in Auth
+        if (profileError) {
+          console.warn('Could not create profile record:', profileError.message);
+          console.info('You may need to create the "profiles" table in your Supabase project');
+        }
+      } catch (profileErr) {
+        // Just log the error but continue - Auth registration was successful
+        console.warn('Error creating profile:', profileErr);
+        console.info('You may need to create the "profiles" table in your Supabase project');
+      }
     }
 
     return { success: true, user: authData.user };

@@ -29,9 +29,23 @@ const AdminRegister = () => {
       });
       navigate("/admin/login");
     } catch (error) {
+      // Handle specific known errors
+      let errorMessage = "An error occurred during registration";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Check for common Supabase errors
+        if (errorMessage.includes("duplicate key")) {
+          errorMessage = "This email is already registered. Please login instead.";
+        } else if (errorMessage.includes("table") && errorMessage.includes("does not exist")) {
+          errorMessage = "Database setup incomplete. Please complete Supabase setup first.";
+        }
+      }
+      
       toast({
         title: "Registration failed",
-        description: error instanceof Error ? error.message : "An error occurred during registration",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
